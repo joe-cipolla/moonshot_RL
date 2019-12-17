@@ -47,8 +47,31 @@ class LunarLanderEnvironment(environment.BaseEnvironment):
         # agent is in a terminal state.
         # Recall - if the agent crashes or lands terminal needs to be set to True
 
-        # YOUR CODE HERE
-        raise NotImplementedError()
+        # See if lander has crashed
+        lander_crashed = False
+        landing_success = False
+        if fuel <= 0:  # ran out of fuel
+            lander_crashed = True
+        if pos_y == land_y:  # if lander has touched the groud
+            if (vel_y < -3) or (vel_x < -10) or (10 < vel_x):  # lander going too fast
+                lander_crashed = True
+            elif (5 < angle < 355):  # lander not vertical
+                lander_crashed = True
+            elif (pos_x != land_x):
+                lander_crashed = True
+            else:
+                landing_success = True
+
+        # calc reward
+        if landing_success:
+            reward = 10000 -(100 - fuel)
+            terminal = True
+        elif lander_crashed:
+            reward = -10000
+            terminal = True
+        else:
+            reward += -(100 - fuel)  # cost of using fuel
+            reward -= 1  # cost of taking a step without a reward
 
         self.reward_obs_term = (reward, observation, terminal)
         return self.reward_obs_term
